@@ -1,0 +1,30 @@
+version: '3'
+services:
+  my-mysql-container:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: my-secret-pw
+      MYSQL_DATABASE: mydatabase
+    ports:
+      - "3307:3306"
+    networks:
+      - spring-mysql-docker-network
+
+  springboot-mysql-container:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - my-mysql-container
+    environment:
+      MYSQL_HOST: my-mysql-container
+      MYSQL_USER: root
+      MYSQL_PASSWORD: my-secret-pw
+      MYSQL_PORT: 3306
+    command: ["sh", "-c", "sleep 30 && java -jar my-spring-boot-app-0.0.1-SNAPSHOT.jar"]
+    networks:
+      - spring-mysql-docker-network
+
+networks:
+  spring-mysql-docker-network:
+    driver: bridge
